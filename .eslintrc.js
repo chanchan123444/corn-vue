@@ -37,7 +37,6 @@ module.exports = {
     'camelcase': [0, {
       'properties': 'always'
     }],
-    'comma-dangle': [2, 'never'],
     'comma-spacing': [2, {
       'before': false,
       'after': true
@@ -56,7 +55,6 @@ module.exports = {
     'indent': [2, 2, {
       'SwitchCase': 1
     }],
-    'jsx-quotes': [2, 'prefer-single'],
     'key-spacing': [2, {
       'beforeColon': false,
       'afterColon': true
@@ -89,7 +87,6 @@ module.exports = {
     'no-extend-native': 2,
     'no-extra-bind': 2,
     'no-extra-boolean-cast': 2,
-    'no-extra-parens': [2, 'functions'],
     'no-fallthrough': 2,
     'no-floating-decimal': 2,
     'no-func-assign': 2,
@@ -123,7 +120,6 @@ module.exports = {
     'no-proto': 2,
     'no-redeclare': 2,
     'no-regex-spaces': 2,
-    'no-return-assign': [2, 'except-parens'],
     'no-self-assign': 2,
     'no-self-compare': 2,
     'no-sequences': 2,
@@ -162,23 +158,6 @@ module.exports = {
       }
     }],
     'padded-blocks': [2, 'never'],
-    'quotes': [2, 'single', {
-      'avoidEscape': true,
-      'allowTemplateLiterals': true
-    }],
-    'semi': [2, 'never'],
-    'semi-spacing': [2, {
-      'before': false,
-      'after': true
-    }],
-    'space-before-blocks': [2, 'always'],
-    'space-before-function-paren': [2, 'never'],
-    'space-in-parens': [2, 'never'],
-    'space-infix-ops': 2,
-    'space-unary-ops': [2, {
-      'words': true,
-      'nonwords': false
-    }],
     'spaced-comment': [2, 'always', {
       'markers': ['global', 'globals', 'eslint', 'eslint-disable', '*package', '!', ',']
     }],
