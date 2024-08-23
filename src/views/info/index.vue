@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="请输入样品名称" style="width: 200px;margin-right: 10px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.name" placeholder="请输入样品名称" style="width: 200px;margin-right: 10px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -16,42 +16,41 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="样品名称" min-width="150px">
+      <el-table-column label="样品名称" min-width="100px">
         <template slot-scope="{row}">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-          <el-tag>{{ row.type | typeFilter }}</el-tag>
+          <span>{{ row.name }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="规格型号" width="110px" align="center">
+      <el-table-column label="规格型号" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.type }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="样品编号" width="110px" align="center">
+      <el-table-column label="样品编号" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.serial_number }}</span>
         </template>
       </el-table-column>
       <el-table-column label="检验日期" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.check_data | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="下次检验日期" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ row.next_check_data | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="查询状态" class-name="status-col" width="100">
+      <el-table-column label="查询状态" class-name="status-col" width="150px">
         <template slot-scope="{row}">
           <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
+            {{ ['异常','正常'][row.status] }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="检验员" width="110px" align="center">
+      <el-table-column label="检验员" width="150px" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.pepole }}</span>
         </template>
       </el-table-column>
 
@@ -78,23 +77,29 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="120px" style="margin: 0 50px 0;">
 
-        <el-form-item label="样品名称" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="样品名称" prop="name">
+          <el-input v-model="temp.name" />
         </el-form-item>
-        <el-form-item label="规格型号" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="规格型号" prop="type">
+          <el-input v-model="temp.type" />
         </el-form-item>
-        <el-form-item label="检验日期" prop="title">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="请选择检验日期" />
+        <el-form-item label="样品编号" prop="serial_number">
+          <el-input v-model="temp.serial_number" />
         </el-form-item>
-        <el-form-item label="下次检验日期" prop="title">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="请选择下次检验日期" />
+        <el-form-item label="检验日期" prop="check_data">
+          <el-date-picker v-model="temp.check_data" type="datetime" placeholder="请选择检验日期" />
         </el-form-item>
-        <el-form-item label="查询状态" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="下次检验日期" prop="next_check_data">
+          <el-date-picker v-model="temp.next_check_data" type="datetime" placeholder="请选择下次检验日期" />
         </el-form-item>
-        <el-form-item label="检验员" prop="title">
-          <el-input v-model="temp.title" />
+        <el-form-item label="查询状态" prop="status">
+          <el-select v-model="temp.status" placeholder="请选择">
+            <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="检验员" prop="pepole">
+          <el-input v-model="temp.pepole" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -120,7 +125,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { fetchList, fetchPv, createArticle, updateArticle, delArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -145,9 +150,8 @@ export default {
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        1: 'success',
+        0: 'danger'
       }
       return statusMap[status]
     },
@@ -165,14 +169,14 @@ export default {
         page: 1,
         limit: 20,
         importance: undefined,
-        title: undefined,
+        name: undefined,
         type: undefined,
         sort: '+id'
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['published', 'draft', 'deleted'],
+      statusOptions: ['异常', '正常'],
       showReviewer: false,
       temp: {
         id: undefined,
@@ -181,8 +185,16 @@ export default {
         timestamp: new Date(),
         title: '',
         type: '',
-        status: 'published'
+        serial_number: '',
+        check_data: new Date(),
+        next_check_data: new Date(),
+        pepole: '',
+        status: 1
       },
+      selectOptions: [
+        { value: 1, label: '正常' },
+        { value: 0, label: '异常' },
+      ],
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
@@ -192,9 +204,12 @@ export default {
       dialogPvVisible: false,
       pvData: [],
       rules: {
-        type: [{ required: true, message: 'type is required', trigger: 'change' }],
-        timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        name: [{ required: true, message: '样品名称不能为空', trigger: 'blur' }],
+        type: [{ required: true, message: '规格型号不能为空', trigger: 'blur' }],
+        serial_number: [{ required: true, message: '样品编号不能为空', trigger: 'blur' }],
+        check_data: [{ type: 'date', required: true, message: '检验日期不能为空', trigger: 'change' }],
+        next_check_data: [{ type: 'date', required: true, message: '下次检验日期不能为空', trigger: 'change' }],
+        pepole: [{ required: true, message: '检验员不能为空', trigger: 'blur' }],
       },
       downloadLoading: false
     }
@@ -206,8 +221,8 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+        this.list = response.data.rows
+        this.total = response.data.count
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -247,8 +262,12 @@ export default {
         remark: '',
         timestamp: new Date(),
         title: '',
-        status: 'published',
-        type: ''
+        type: '',
+        serial_number: '',
+        check_data: new Date(),
+        next_check_data: new Date(),
+        pepole: '',
+        status: 1
       }
     },
     handleCreate() {
@@ -262,8 +281,13 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
+          console.log(this.temp);
+          if (typeof this.temp.check_data === 'object') {
+            this.temp.check_data = this.temp.check_data.getTime();
+          }
+          if (typeof this.temp.next_check_data === 'object') {
+            this.temp.next_check_data = this.temp.next_check_data.getTime();
+          }
           createArticle(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
@@ -306,13 +330,16 @@ export default {
       })
     },
     handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
+      delArticle(row).then(() => {
+        this.$notify({
+          title: 'Success',
+          message: 'Delete Successfully',
+          type: 'success',
+          duration: 2000
+        })
+        this.list.splice(index, 1)
       })
-      this.list.splice(index, 1)
+
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
