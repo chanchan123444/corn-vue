@@ -103,7 +103,7 @@ export const constantRoutes = [
         path: "index",
         component: () => import("@/views/qrcode/index"),
         name: "qrcode",
-        meta: { title: "二维码列表", icon: "list", affix: true },
+        meta: { title: "设备列表", icon: "list", affix: true },
       },
     ],
   },

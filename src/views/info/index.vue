@@ -125,6 +125,7 @@
 </template>
 
 <script>
+import { MessageBox } from 'element-ui'
 import { fetchList, fetchPv, createArticle, updateArticle, delArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
@@ -330,16 +331,21 @@ export default {
       })
     },
     handleDelete(row, index) {
-      delArticle(row).then(() => {
-        this.$notify({
-          title: 'Success',
-          message: 'Delete Successfully',
-          type: 'success',
-          duration: 2000
+      MessageBox.confirm('删除后无法恢复！确定要删除吗', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delArticle(row).then(() => {
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.list.splice(index, 1)
         })
-        this.list.splice(index, 1)
       })
-
     },
     handleFetchPv(pv) {
       fetchPv(pv).then(response => {
