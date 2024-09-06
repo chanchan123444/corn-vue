@@ -53,3 +53,11 @@ export function delArticle(data) {
     data,
   });
 }
+
+export function exportArticle(data) {
+  return request({
+    url: "/api/qr/exportData",
+    method: "post",
+    data,
+  });
+}

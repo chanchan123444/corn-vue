@@ -22,3 +22,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function changePass(data) {
+  return request({
+    url: "/api/user/update",
+    method: "post",
+    data,
+  });
+}

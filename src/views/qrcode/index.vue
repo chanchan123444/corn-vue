@@ -5,13 +5,16 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="success" icon="el-icon-edit" @click="handleCreate">
+      <el-button class="filter-item" style="margin-left: 10px;" type="success" icon="el-icon-document-add" @click="handleCreate">
         批量添加
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleUpdate(temp)">
         批量修改
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="danger" icon="el-icon-edit" @click="handleBatchDelete">
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-box" @click="handleBatchExport">
+        批量导出
+      </el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="danger" icon="el-icon-delete" @click="handleBatchDelete">
         批量删除
       </el-button>
     </div>
@@ -35,8 +38,8 @@
         <template slot-scope="{row}">
           <!-- <span>{{ row.info_id }}</span> -->
           <div class="qr-code-box">
-            <qrcode :url="'https://www.baidu.com/code/' + row.id"></qrcode>
-            <qrcode class="big" :url="'https://www.baidu.com/code/' + row.id"></qrcode>
+            <qrcode :url="domain + '/code/' + row.id"></qrcode>
+            <qrcode class="big" :url="domain + '/code/' + row.id"></qrcode>
           </div>
         </template>
       </el-table-column>
@@ -65,7 +68,7 @@
         <el-form-item v-if="dialogStatus != 'create'" label="结束ID" prop="end_id">
           <el-input v-model="temp.end_id" />
         </el-form-item>
-        <el-form-item v-if="dialogStatus != 'delete'" label="批次选择" prop="info_id">
+        <el-form-item v-if="dialogStatus != 'delete' && dialogStatus != 'export'" label="批次选择" prop="info_id">
           <el-select v-model="temp.info_id" placeholder="请选择">
             <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -76,12 +79,16 @@
         <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button v-if="dialogStatus != 'delete'" type="primary" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button v-if="dialogStatus != 'delete' && dialogStatus != 'export'" type="primary" @click="dialogStatus==='create'?createData():updateData()">
           确定
         </el-button>
         <el-button v-if="dialogStatus == 'delete'" type="danger" @click="sureBatchDelete">
           删除
         </el-button>
+        <el-button v-if="dialogStatus == 'export'" type="primary" @click="sureBatchExport">
+          确定
+        </el-button>
+
       </div>
     </el-dialog>
 
@@ -99,7 +106,7 @@
 
 <script>
 import { MessageBox } from 'element-ui'
-import { fetchList, fetchInfoList, fetchPv, createArticle, updateArticle, delArticle } from '@/api/qrcode'
+import { fetchList, fetchInfoList, fetchPv, createArticle, updateArticle, delArticle, exportArticle } from '@/api/qrcode'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
@@ -136,6 +143,7 @@ export default {
   },
   data() {
     return {
+      domain:process.env.VUE_APP_BASE_API,
       tableKey: 0,
       list: null,
       total: 0,
@@ -175,6 +183,7 @@ export default {
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
+        export: '导出',
         delete: '删除',
         update: '编辑',
         create: '添加'
@@ -287,6 +296,14 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
+    handleBatchExport() {
+      this.resetTemp()
+      this.dialogStatus = 'export'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
     sureBatchDelete() {
       const tempData = Object.assign({}, this.temp)
       MessageBox.confirm('删除后无法恢复！确定要删除吗', '警告', {
@@ -303,6 +320,20 @@ export default {
             duration: 2000
           })
           this.getList();
+        })
+      })
+    },
+    sureBatchExport() {
+      const tempData = Object.assign({}, this.temp)
+      exportArticle(tempData).then((res) => {
+         console.log(res)
+         window.open(this.domain + '/public/exports/' + res.data.filename, '_blank');
+        this.dialogFormVisible = false
+        this.$notify({
+          title: '成功',
+          message: '导出成功',
+          type: 'success',
+          duration: 2000
         })
       })
     },

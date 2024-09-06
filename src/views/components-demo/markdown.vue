@@ -79,7 +79,7 @@ export default {
   },
   computed: {
     language() {
-      return this.languageTypeList['en']
+      return this.languageTypeList['zh']
     }
   },
   methods: {

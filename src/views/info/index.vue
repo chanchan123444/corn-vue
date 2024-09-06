@@ -87,10 +87,10 @@
           <el-input v-model="temp.serial_number" />
         </el-form-item>
         <el-form-item label="检验日期" prop="check_data">
-          <el-date-picker v-model="temp.check_data" type="datetime" placeholder="请选择检验日期" />
+          <el-date-picker type="date" v-model="temp.check_data" placeholder="请选择检验日期" />
         </el-form-item>
         <el-form-item label="下次检验日期" prop="next_check_data">
-          <el-date-picker v-model="temp.next_check_data" type="datetime" placeholder="请选择下次检验日期" />
+          <el-date-picker type="date" v-model="temp.next_check_data" placeholder="请选择下次检验日期" />
         </el-form-item>
         <el-form-item label="查询状态" prop="status">
           <el-select v-model="temp.status" placeholder="请选择">
@@ -290,7 +290,8 @@ export default {
             this.temp.next_check_data = this.temp.next_check_data.getTime();
           }
           createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
+            // this.list.unshift(this.temp)
+            this.getList()
             this.dialogFormVisible = false
             this.$notify({
               title: 'Success',
@@ -317,8 +318,9 @@ export default {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
           updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+            // const index = this.list.findIndex(v => v.id === this.temp.id)
+            // this.list.splice(index, 1, this.temp)
+            this.getList()
             this.dialogFormVisible = false
             this.$notify({
               title: 'Success',

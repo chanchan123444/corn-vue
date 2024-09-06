@@ -135,14 +135,14 @@ export const constantRoutes = [
   {
     path: "/profile",
     component: Layout,
-    redirect: "/profile/index",
+    redirect: "/profile/pass",
     hidden: true,
     children: [
       {
-        path: "index",
-        component: () => import("@/views/profile/index"),
-        name: "Profile",
-        meta: { title: "Profile", icon: "user", noCache: true },
+        path: "pass",
+        component: () => import("@/views/profile/pass"),
+        name: "Pass",
+        meta: { title: "修改密码", icon: "user", noCache: true },
       },
     ],
   },
