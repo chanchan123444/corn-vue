@@ -31,7 +31,7 @@
       </el-table-column>
       <el-table-column label="批次信息(名称 型号 编号 检验日期 下次检验日期 状态 检验员)" min-width="150px">
         <template slot-scope="{row}">
-          <span>{{ row.name }} | {{ row.type }} | {{ row.serial_number }} | {{ row.check_data | parseTime('{y}-{m}-{d} {h}:{i}') }} | {{ row.check_data | parseTime('{y}-{m}-{d} {h}:{i}') }} | {{ ['异常','正常'][row.status] }} | {{ row.pepole }}</span>
+          <span>{{ row.name }} | {{ row.type }} | {{ row.serial_number }}-{{ row.rank_id }} | {{ row.check_data | parseTime('{y}-{m}-{d} {h}:{i}') }} | {{ row.check_data | parseTime('{y}-{m}-{d} {h}:{i}') }} | {{ ['异常','正常'][row.status] }} | {{ row.pepole }}</span>
         </template>
       </el-table-column>
       <el-table-column label="二维码" min-width="100px">
